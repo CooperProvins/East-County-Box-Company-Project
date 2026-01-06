@@ -2,30 +2,58 @@
 #include<string>
 #include<iomanip>
 
-using namespace std;
+// local function to receive positive double from user
+int receivePositiveDouble() {
+    // declare local variable
+    double number;
+
+    // initialize user number to local var
+    std::cin >> number;
+
+    // ask user to reinput number until they input a positive number
+    // will not be tripped if player inputs positive number first try
+    while (number <= 0) {
+        std::cout << "\tNumber must be positive. Input again: ";
+        std::cin >> number;
+    }
+
+    // return local var
+    return number;
+}
+
+// removed namespace declaration, personal preference
 
 int main(){
-    cout << "East County Box Company" << endl << endl;
-    cout << "Sales Program (Version 1.5)" << endl << endl;
+    std::cout << "East County Box Company" << std::endl << std::endl;
+    std::cout << "Sales Program (Version 1.5)" << std::endl << std::endl;
 
+    // declare variables to be used in program, all doubles representing real properties of the shipment
     double length, width, height, volume, subtotal, salestax, total;
 
-    cout << "Enter package dimensions (feet): " << endl;
-    cout << "Length: ";
-    cin >> length;
-    cout << "Width: ";
-    cin>> width;
-    cout << "Height: ";
-    cin >> height;
+    // initializes some variables with input from user
+    std::cout << "Enter package dimensions (feet): " << std::endl;
+    std::cout << "Length: ";
+    length = receivePositiveDouble();
+    std::cout << "Width: ";
+    width = receivePositiveDouble();
+    std::cout << "Height: ";
+    height = receivePositiveDouble();
+
+    // initializes volume, price calculations to the rest of the variables
     volume = length * width * height;
-    cout << endl << "Package Volume: " << volume << " cubic feet" << endl << endl;
+    std::cout << std::endl << "Package Volume: " << volume << " cubic feet" << std::endl << std::endl;
     subtotal = volume * 2.5;
     salestax = subtotal * .0775;
     total = subtotal + salestax;
-    cout << setprecision(2) << fixed;
-    cout << setw(42) << left << "Shipping Cost ($2.50 per cubic foot) " << setw(2) << left << "$ " << setw(8) << right << subtotal << endl;
-    cout << setw(42) << left << "Sales Tax (.0775) " << setw(2) << left << "$ " << setw(8) << right << salestax << endl << endl;
-    cout << setw(42) << left << "Total  " << setw(2) << left << "$ " << setw(8) << right << total << endl;
+
+    // sets preference of decimal printing
+    // only show two numbers after decimal point
+    std::cout << std::setprecision(2) << std::fixed;
+
+    // notifies user of price calculations
+    std::cout << std::setw(42) << std::left << "Shipping Cost ($2.50 per cubic foot) " << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << subtotal << std::endl;
+    std::cout << std::setw(42) << std::left << "Sales Tax (7.75%) " << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << salestax << std::endl << std::endl;
+    std::cout << std::setw(42) << std::left << "Total  " << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << total << std::endl;
 
     return 0;
 }
