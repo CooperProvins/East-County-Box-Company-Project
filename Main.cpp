@@ -28,13 +28,14 @@ double calculateVolume(double a, double b, double c){
 // removed namespace declaration, personal preference
 
 int main(){
-    std::cout << "East County Box Company" << std::endl << std::endl;
-    std::cout << "Sales Program (Version 1.5)" << std::endl << std::endl;
+  std::cout << "East County Box Company" << std::endl << std::endl;
+  std::cout << "Sales Program (Version 1.5)" << std::endl << std::endl;
 
-    // declare variables to be used in program, all doubles representing real properties of the shipment
-    double length, width, height, volume, subtotal, salestax, total, cfRate;
-    double cfRates[] = {1.5,2.5,3};
-
+  // declare variables to be used in program, all doubles representing real properties of the shipment
+  double length, width, height, volume, subtotal, minitotal, salestax, total, cfRate;
+  double cfRates[] = {1.5,2.5,3};
+  std::string response = "";
+  do {
     // initializes some variables with input from user
     std::cout << "Enter package dimensions (feet): " << std::endl;
     std::cout << "Length: ";
@@ -67,19 +68,28 @@ int main(){
     }
 
     // initializes volume, price calculations to the rest of the variables
-    std::cout << std::endl << "Package Volume: " << volume << " cubic feet" << std::endl << std::endl;
-    subtotal = volume * cfRate;
-    salestax = subtotal * .0775;
-    total = subtotal + salestax;
+    std::cout << std::endl << "Package Volume: " << volume << " cubic feet" << std::endl;
+    minitotal = volume * cfRate;
+    subtotal += minitotal;
 
     // sets preference of decimal printing
     // only show two numbers after decimal point
     std::cout << std::setprecision(2) << std::fixed;
 
     // notifies user of price calculations
-    std::cout << "Shipping Cost ($" << cfRate << " per cubic foot) " << std::setw(7) << "$ " << std::setw(8) << std::right << subtotal << std::endl;
-    std::cout << std::setw(42) << std::left << "Sales Tax (7.75%) " << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << salestax << std::endl << std::endl;
-    std::cout << std::setw(42) << std::left << "Total  " << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << total << std::endl;
+    std::cout << "Shipping Cost ($" << cfRate << " per cubic foot) " << std::setw(7) << "$ " << std::setw(8) << std::right << minitotal << std::endl << std::endl;
 
-    return 0;
+    std::cout << "Add another package (Y/N): ";
+    std::cin >> response;
+    std::cout << std::endl;
+    } while (response != "N" && response != "n");
+
+  salestax = subtotal * 0.0775;
+  total = subtotal + salestax;
+
+  std::cout << std::setw(42) << std::left << "Subtotal" << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << subtotal << std::endl;
+  std::cout << std::setw(42) << std::left << "Sales Tax (7.75%) " << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << salestax << std::endl << std::endl;
+  std::cout << std::setw(42) << std::left << "Total  " << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << total << std::endl;
+
+  return 0;
 }
