@@ -2,41 +2,27 @@
 #include<string>
 #include<iomanip>
 
-// local function to receive positive double from user
-int receivePositiveDouble() {
-    // declare local variable
-    double number;
+// Prompts the user to enter a positive double value
+// Repeats input until a valid positive number is provided
+int receivePositiveDouble();
 
-    // initialize user number to local var
-    std::cin >> number;
+// Calculates the volume of a rectangular package given length, width, and height
+double calculateVolume(double, double, double);
 
-    // ask user to reinput number until they input a positive number
-    // will not be tripped if player inputs positive number first try
-    while (number <= 0) {
-        std::cout << "\tNumber must be positive. Input again: ";
-        std::cin >> number;
-    }
-
-    // return local var
-    return number;
-}
-
-double calculateVolume(double a, double b, double c){
-  return a*b*c;
-}
-
-// removed namespace declaration, personal preference
+// Removed namespace declaration, personal preference
 
 int main(){
   std::cout << "East County Box Company" << std::endl << std::endl;
   std::cout << "Sales Program (Version 1.5)" << std::endl << std::endl;
 
-  // declare variables to be used in program, all doubles representing real properties of the shipment
+  // Declare variables for package dimensions, pricing, totals, and rates
   double length, width, height, volume, subtotal, minitotal, salestax, total, cfRate;
   double cfRates[] = {1.5,2.5,3};
   std::string response = "";
+
+  // Loop allows user to enter multiple packages until they choose to stop
   do {
-    // initializes some variables with input from user
+    // Prompt user for package dimensions (must be positive values)
     std::cout << "Enter package dimensions (feet): " << std::endl;
     std::cout << "Length: ";
     length = receivePositiveDouble();
@@ -44,7 +30,8 @@ int main(){
     width = receivePositiveDouble();
     std::cout << "Height: ";
     height = receivePositiveDouble();
-    
+
+    // Ensure package volume does not exceed the 65 cubic foot limit
     while (calculateVolume(length,width,height) > 65){
       std::cout << "This package exceeds the 65 cubic foot limit. Please input again." << std::endl << std::endl;
       std::cout << "Enter package dimensions (feet): " << std::endl;
@@ -56,7 +43,9 @@ int main(){
       height = receivePositiveDouble();
     }
 
+
     volume = calculateVolume(length,width,height);
+    // Determine cost per cubic foot based on package volume
     if (volume < 15){
       cfRate = cfRates[0];
     }
@@ -67,23 +56,24 @@ int main(){
       cfRate = cfRates[2];
     }
 
-    // initializes volume, price calculations to the rest of the variables
+    // Calculate cost for this package and add to running subtotal
     std::cout << std::endl << "Package Volume: " << volume << " cubic feet" << std::endl;
     minitotal = volume * cfRate;
     subtotal += minitotal;
 
-    // sets preference of decimal printing
-    // only show two numbers after decimal point
+    // Format monetary output to two decimal places
     std::cout << std::setprecision(2) << std::fixed;
 
     // notifies user of price calculations
     std::cout << "Shipping Cost ($" << cfRate << " per cubic foot) " << std::setw(7) << "$ " << std::setw(8) << std::right << minitotal << std::endl << std::endl;
 
+    // Ask user whether they want to enter another package
     std::cout << "Add another package (Y/N): ";
     std::cin >> response;
     std::cout << std::endl;
     } while (response != "N" && response != "n");
 
+  // Final sales tax and total cost calculations
   salestax = subtotal * 0.0775;
   total = subtotal + salestax;
 
@@ -92,4 +82,30 @@ int main(){
   std::cout << std::setw(42) << std::left << "Total  " << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << total << std::endl;
 
   return 0;
+}
+
+// Function: receivePositiveDouble
+// Takes doubles from input and returns the first positive one
+int receivePositiveDouble() {
+  // declare local variable
+  double number;
+
+  // initialize user number to local var
+  std::cin >> number;
+
+  // ask user to reinput number until they input a positive number
+  // will not be tripped if player inputs positive number first try
+  while (number <= 0) {
+    std::cout << "\tNumber must be positive. Input again: ";
+    std::cin >> number;
+  }
+
+  // return local var
+  return number;
+}
+
+// Function: calculateVolume
+// Returns the volume of a box using length * width * height
+double calculateVolume(double a, double b, double c){
+  return a*b*c;
 }
