@@ -1,7 +1,8 @@
 #include<iostream>
 #include<string>
 #include<iomanip>
-#include <stdexcept>
+#include<stdexcept>
+#include<vector>
 
 // Prompts the user to enter a positive double value
 // Repeats input until a valid positive number is provided
@@ -11,6 +12,33 @@ int receivePositiveDouble();
 double calculateVolume(double, double, double);
 
 // Removed namespace declaration, personal preference
+
+class Package {
+  public:
+    double length, width, height, cfRate;
+    int shipmentType;
+    static double cfRates[3];
+    static int numPackages;
+    static std::vector<Package> packages;
+
+    Package() {
+      length = 0;
+      width = 0;
+      height = 0;
+      cfRate = 0;
+      shipmentType = 0;
+      numPackages++;
+      Package::packages.push_back(*this);
+    };
+
+    double volume() {
+      return length * width * height;
+    }
+};
+
+double Package::cfRates[3] = {1.5, 2.5, 3};
+int Package::numPackages = 0;
+std::vector<Package> Package::packages = {};
 
 int main(){
   std::cout << "East County Box Company" << std::endl << std::endl;
