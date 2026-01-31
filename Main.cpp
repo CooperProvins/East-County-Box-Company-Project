@@ -3,36 +3,90 @@
 #include<iomanip>
 #include<stdexcept>
 #include<vector>
+#include<limits>
 
 // Prompts the user to enter a positive double value
 // Repeats input until a valid positive number is provided
 int receivePositiveDouble();
 
-// Calculates the volume of a rectangular package given length, width, and height
-double calculateVolume(double, double, double);
-
 // Removed namespace declaration, personal preference
 
+// Defines Package class and object
 class Package {
   public:
-    double length, width, height, cfRate;
-    int shipmentType;
+    // initialization of public instance variables
+    double length, width, height, cfRate, packageCost, shippingCost;
+    int shipmentType, currentNum;
+    // initialization of public static variables
     static double cfRates[3];
     static int numPackages;
     static std::vector<Package> packages;
 
+    // simple constructor
     Package() {
       length = 0;
       width = 0;
       height = 0;
       cfRate = 0;
       shipmentType = 0;
-      numPackages++;
-      Package::packages.push_back(*this);
-    };
+      packageCost = 0;
+      shippingCost = 0;
+      currentNum = numPackages;
+    }
 
+    // simple instance method for returning volume of package
     double volume() {
       return length * width * height;
+    }
+
+    // simple instance method for returning cost of package, without shipping
+    void calculatePackageCost() {
+      // classify base rate with volume
+      if (volume() < 15){
+        cfRate = cfRates[0];
+        std::cout << "Small";
+      }
+      else if (volume() <= 45){
+        cfRate = cfRates[1];
+        std::cout << "Medium";
+      }
+      else {
+        cfRate = cfRates[2];
+        std::cout << "Large";
+      }
+      // calculate basic package cost
+      packageCost = volume() * cfRate;
+    }
+
+    // simple instance method for returning cost of shipping a package, without price of package
+    void calculateShippingCost() {
+      // parses shipment type and assigns rate
+      switch (shipmentType) {
+        case 1: {
+          cfRate = 0;
+          std::cout << "Standard";
+          break;
+        }
+        case 2: {
+          cfRate = 1.5;
+          std::cout << "Fast Ground";
+          break;
+        }
+        case 3: {
+          // if 3 is inputted, but volume is over 30, throw error
+          if (volume() >= 30) {
+            throw std::runtime_error("\n\nShipping option input must be 1 or 2");
+          }
+          cfRate = 3;
+          std::cout << "Air";
+          break;
+        }
+          // if shipping type is invalid throw error
+        default:
+          throw std::runtime_error("\n\nShipping option input must be 1, 2, or 3");
+      }
+      // calculate basic shipping cost
+      shippingCost = volume() * cfRate;
     }
 };
 
@@ -41,114 +95,81 @@ int Package::numPackages = 0;
 std::vector<Package> Package::packages = {};
 
 int main(){
-  std::cout << "East County Box Company" << std::endl << std::endl;
-  std::cout << "Sales Program (Version 1.5)" << std::endl << std::endl;
+  std::cout << "****East County Cargo Transport****" << std::endl << std::endl;
+  std::cout << "Cashiering system 2.0" << std::endl;
 
   // Declare variables for package dimensions, pricing, totals, and rates
-  double length, width, height, volume, subtotal, minitotal, salestax, total, cfRate, shipTotal;
+  double subtotal = 0.0, salestax = 0.0, total = 0.0, shipTotal = 0.0;
   double cfRates[] = {1.5,2.5,3};
-  int paymentType, shipmentType;
-  int numCountainers = 1;
-  std::string response = "";
+  int paymentType;
+  std::string response = "", date = "", name = "";
+
+  // prompts user for date and name, then saves to variables
+  std::cout << "Date: ";
+  std::cin >> date;
+  std::cout << "Name: ";
+  std::cin >> name;
+  std::cout << std::endl;
+
+  // consume newline
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
   // Loop allows user to enter multiple packages until they choose to stop
   do {
+    // initializes package for current loop
+    Package myPackage = Package();
+
     // Prompt user for package dimensions (must be positive values)
-    std::cout << "Enter package #" << numCountainers << " dimensions (feet): " << std::endl;
+    std::cout << "Enter package #" << Package::numPackages+1 << " dimensions (feet): " << std::endl;
     std::cout << "Length: ";
-    length = receivePositiveDouble();
+    myPackage.length = receivePositiveDouble();
     std::cout << "Width: ";
-    width = receivePositiveDouble();
+    myPackage.width = receivePositiveDouble();
     std::cout << "Height: ";
-    height = receivePositiveDouble();
+    myPackage.height = receivePositiveDouble();
 
     // Ensure package volume does not exceed the 65 cubic foot limit
-    while (calculateVolume(length,width,height) > 65){
-      std::cout << "This package exceeds the 65 cubic foot limit. Please input again." << std::endl << std::endl;
-      std::cout << "Enter package #" << numCountainers << " dimensions (feet): " << std::endl;
-      std::cout << "Length: ";
-      length = receivePositiveDouble();
-      std::cout << "Width: ";
-      width = receivePositiveDouble();
-      std::cout << "Height: ";
-      height = receivePositiveDouble();
+    if (myPackage.volume() > 65) {
+      throw std::runtime_error("\n\nVolume must be lower than 65 ft^3");
     }
-
-    volume = calculateVolume(length,width,height);
 
     // Calculate cost for this package and add to running subtotal
-    std::cout << std::endl << "Package #" << numCountainers << " Volume: " << volume << " cubic feet" << std::endl;
-    minitotal = volume * cfRate;
-
-    // Determine cost per cubic foot based on package volume
-    if (volume < 15){
-      cfRate = cfRates[0];
-      std::cout << "Small";
-    }
-    else if (volume <= 45){
-      cfRate = cfRates[1];
-      std::cout << "Medium";
-    }
-    else {
-      cfRate = cfRates[2];
-      std::cout << "Large";
-    }
-    minitotal = volume * cfRate;
-    subtotal += minitotal;
+    std::cout << std::endl << "Package #" << Package::numPackages << " Volume: " << myPackage.volume() << " cubic feet" << std::endl;
 
     // Format monetary output to two decimal places
     std::cout << std::setprecision(2) << std::fixed;
 
     // notifies user of price calculations
-    std::cout << " Package ($" << cfRate << " per cubic foot) " << std::setw(7) << "$ " << std::setw(8) << std::right << minitotal << std::endl << std::endl;
+    myPackage.calculatePackageCost();
+    std::cout << " Package ($" << myPackage.cfRate << " per cubic foot) " << std::setw(7) << "$ " << std::setw(8) << std::right << myPackage.packageCost << std::endl << std::endl;
 
     // notifies user of shipping options
     std::cout << "(1) Standard - (one to two weeks) - No change to the price\n(2) Fast Ground - (3 to 5 business days) - Extra $1.50 per cubic foot\n";
-    if (volume <= 30) {
+    if (myPackage.volume() <= 30) {
       std::cout << "(3) Air - (1 to 2 business days) - Only applies to packages under 30 cubic feet - Extra $3.00 per cubic foot";
     }
 
     // receives delivery method from user
     std::cout << std::endl << std::endl << "Delivery Method: ";
-    std::cin >> shipmentType;
+    std::cin >> myPackage.shipmentType;
 
-    // parses shipment type and assigns rate
-    switch (shipmentType) {
-      case 1: {
-        cfRate = 0;
-        std::cout << "Standard";
-        break;
-      }
-      case 2: {
-        cfRate = 1.5;
-        std::cout << "Fast Ground";
-        break;
-      }
-      case 3: {
-        // if 3 is inputted, but volume is over 30, throw error
-        if (volume >= 30) {
-          throw std::runtime_error("\n\nShipping option input must be 1 or 2");
-        }
-        cfRate = 3;
-        std::cout << "Air";
-        break;
-      }
-      // if shipping type is invalid throw error
-      default:
-        throw std::runtime_error("\n\nShipping option input must be 1, 2, or 3");
-    }
+    // caluclates shipping cost, then adds package to list of packages
+    myPackage.calculateShippingCost();
+    Package::packages.push_back(myPackage);
+    Package::numPackages++;
 
-    minitotal = volume * cfRate;
-    shipTotal += minitotal;
-
-    std::cout << " (Extra $" << cfRate << " per cubic foot) " << std::setw(7) << "$ " << std::setw(8) << std::right << minitotal << std::endl << std::endl;
+    // displays shipping cost
+    std::cout << " (Extra $" << myPackage.cfRate << " per cubic foot) " << std::setw(7) << "$ " << std::setw(8) << std::right << myPackage.shippingCost << std::endl << std::endl;
     // Ask user whether they want to enter another package
     std::cout << "Add another package (Y/N): ";
     std::cin >> response;
     std::cout << std::endl;
-    numCountainers++;
   } while (response != "N" && response != "n");
 
+  for (Package thisPackage : Package::packages) {
+    subtotal += thisPackage.packageCost;
+    shipTotal += thisPackage.shippingCost;
+  }
   // Print info to user
   std::cout << std::setw(42) << std::left << "Container Total" << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << subtotal << std::endl;
   std::cout << std::setw(42) << std::left << "Shipping Total" << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << shipTotal << std::endl << std::endl;
@@ -234,6 +255,38 @@ int main(){
         throw std::runtime_error("\n\nInvalid payment type");
     }
   }
+  // receipt printing
+  std::cout << "________________________________________________________________________" << std::endl << std::endl;
+  std::cout << "123 First Street" << std::endl << "El Cajon, CA 92071" << std::endl;
+  std::cout << "Date - " << date << std::endl << std::endl;
+  std::cout << "Customer Name - " << name << std::endl << std::endl;
+
+  // loop through all packages in all packages
+  for (Package thisPackage : Package::packages) {
+    // print container #, volume, and package price
+    std::cout << "Container #" << thisPackage.currentNum+1 << " - " << thisPackage.volume() << " cu ft"
+    << std::setw(7) << "$ " << std::setw(8) << std::right << thisPackage.packageCost << std::endl;
+    // print shipping info based on shipment type
+    switch (thisPackage.shipmentType) {
+      case 1: {
+        std::cout << "Shipping: STD - Est. Delivery - 14 business days";
+        break;
+      }
+      case 2: {
+        std::cout << "Shipping: FG - Est. Delivery - 5 business days";
+        break;
+      }
+      case 3: {
+        std::cout << "Shipping: AIR - Est. Delivery - 2 business days";
+        break;
+      }
+    }
+    std::cout << std::setw(7) << "$ " << std::setw(8) << std::right << thisPackage.shippingCost << std::endl << std::endl;
+  }
+
+  std::cout << std::setw(42) << std::left << "Subtotal" << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << subtotal << std::endl;
+  std::cout << std::setw(42) << std::left << "Sales Tax (7.75%) " << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << salestax << std::endl << std::endl;
+  std::cout << std::setw(42) << std::left << "Total  " << std::setw(2) << std::left << "$ " << std::setw(8) << std::right << total << std::endl;
 
   return 0;
 }
@@ -257,10 +310,4 @@ int receivePositiveDouble() {
 
   // return local var
   return number;
-}
-
-// Function: calculateVolume
-// Returns the volume of a box using length * width * height
-double calculateVolume(double a, double b, double c){
-  return a*b*c;
 }
